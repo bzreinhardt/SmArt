@@ -84,11 +84,14 @@ def find_closest_art(db, coords):
 def upload_image():
   
   rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-  key = info['artistName'] + rand
+  if not request.form.has_key('artistName'):
+    request.form['artistName'] = 'noname'
+  key = request.form['artistName'] + rand
+ 
   
   art = Art(key, bucket=BUCKET_NAME, json_dict=request.form)
   db.session.add(art)
-  db.session.commit(art)
+  db.session.commit()
   data = request.files['image'].stream.read()
   print "DATA SIZE: %s"%len(data)
   save_to_s3(key, data)
