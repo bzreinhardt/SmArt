@@ -10,6 +10,11 @@ METADATA = ['name', 'artist', 'instagram', 'notes']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
 
+def load_db(db_path):
+  with open(DB_PATH, 'r') as f:
+    db = json.loads(f.read())
+  return db
+
 DB = load_db(DB_PATH)
 print "DB SIZE IS: %d"%(len(DB))
 
@@ -29,10 +34,7 @@ def find_closest_art(db, coords):
   return dists.index(min(dists))
 
 
-def load_db(db_path):
-  with open(DB_PATH, 'r') as f:
-    db = json.loads(f.read())
-  return db
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_image():
