@@ -113,7 +113,7 @@ def lookup_gps():
 
 @app.route('/')
 def api_root():
-  return 'Welcome'
+  return Art.query.all()
 
 
 if __name__ == '__main__':
