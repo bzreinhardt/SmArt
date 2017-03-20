@@ -47,7 +47,10 @@ def upload_image():
   info = {}
   #import pdb
   #pdb.set_trace()
-  print request.form.keys()
+  for key in request.form.keys():
+    print "KEY IS: " + key
+    print "VALUE IS: " + request.form[key]
+
   for datum in METADATA:
     if request.form.has_key(datum):
       info[datum] = request.form[datum]
