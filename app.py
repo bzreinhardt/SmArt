@@ -10,34 +10,42 @@ from flask.ext.sqlalchemy import SQLAlchemy
 #DB jsonat 
 # [{name:foo, gps:(1,1), }, {} ...]
 
-METADATA = ['artistName', 'name', 'artist', 'instagram', 'notes', 'location']
+METADATA = ['artistName', 'pieceName', 'instagram', 'notes', 'location']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
 BUCKET_NAME='akiajqulpiyv2ovwdt4a-dump'
 
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
+print "DB SIZE IS: %d"%(len(app.DB))
 
+class Art(db.Model):
+    key = db.Column(db.String(120), primary_key=True)
+    artist_name = db.Column(db.String(80))
+    piece_name = db.Column(db.String(120))
+    latitutde = db.Column(db.Double)
+    longitude = db.Column(db.Double)
+    bucket = db.Column(db.String(80))
+    instagram = db.Column(db.String(80))
+
+
+    def __init__(self, key, artist_name='', piece_name='', latitutde='', longitude='', bucket = '',
+                 instagram = ''):
+        self.key = key
+        self.artist_name = artist_name
+        self.piece_name = piece_name
+        self.latitutde = latitutde
+        self.longitude = longitude
+
+    def __repr__(self):
+        return '<Artist Name: %r>' % self.artist_name
 
 
 def save_to_s3(key, data):
   s3 = boto3.resource('s3')
   s3.Bucket(BUCKET_NAME).put_object(Key=key, Body=data)
-
-def load_db(db_path):
-  with open(DB_PATH, 'r') as f:
-    db = json.loads(f.read())
-  return db
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-app.db = SQLAlchemy(app)
-print "DB SIZE IS: %d"%(len(app.DB))
-
-
-
-def add_to_db(info):
-  app.DB.append(info)
-  with open(DB_PATH, 'w') as f:
-    f.write(json.dumps(app.DB))   
+ 
 
 def find_closest_art(db, coords):
   # Returns index of closest art piece
