@@ -14,3 +14,4 @@ instagram: string instagram account name
 
 location: dictionary with keys 'lat' and 'long' both are doubles with latitude and longitude 
  
+image: file with image of art
