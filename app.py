@@ -1,11 +1,14 @@
 #!/usr/bin/python
 from flask import Flask, url_for, json,  request 
 from scipy.spatial import distance
+import os
 
 #DB jsonat 
 # [{name:foo, gps:(1,1), }, {} ...]
-DB_PATH='./art_db.json'
+
 METADATA = ['name', 'artist', 'instagram', 'notes']
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = PROJECT_ROOT + '/art_db.json'
 
 DB = []
 
@@ -53,5 +56,6 @@ def api_root():
 
 if __name__ == '__main__':
   DB = load_db(DB_PATH)
+  print "DB SIZE IS: %d"%(len(DB))
   app.debug = True
   app.run()
