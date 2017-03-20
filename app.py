@@ -38,10 +38,11 @@ class Art(db.Model):
     longitude = db.Column(db.Float)
     bucket = db.Column(db.String(80))
     instagram = db.Column(db.String(80))
+    notes = db.Column(db.String(120))
 
 
     def __init__(self, key, artist_name='', piece_name='', latitutde=0.0, longitude=0.0, bucket = '',
-                 instagram = '', json_dict=None):
+                 instagram = '', notes='', json_dict=None):
         self.key = key
         self.artist_name = artist_name
         self.piece_name = piece_name
@@ -49,6 +50,7 @@ class Art(db.Model):
         self.longitude = longitude
         self.bucket = bucket
         self.instagragm = instagram
+        self.notes = notes
 
         if json_dict is not None:
           if json_dict.has_key('artistName'):
@@ -59,7 +61,9 @@ class Art(db.Model):
             self.latitutde = json_dict['location']['lat']
             self.longitude = json_dict['location']['long']
           if json_dict.has_key('instagram'):
-            self.piece_name = json_dict['instagram']
+            self.instagram = json_dict['instagram']
+          if json_dict.has_key('notes'):
+            self.notes = json_dict['notes']
 
 
     def __repr__(self):
