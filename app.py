@@ -5,38 +5,62 @@ import os
 import boto3
 import random
 import string
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
 #DB jsonat 
 # [{name:foo, gps:(1,1), }, {} ...]
 
-METADATA = ['artistName', 'pieceName', 'instagram', 'notes', 'location']
+# These should be in a json config
+METADATA = ['artistName', 
+            'pieceName', 
+            'instagram', 
+            'notes', 
+            'location',
+            'instagram']
+LOCATION = ['lat', 'long']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
 BUCKET_NAME='akiajqulpiyv2ovwdt4a-dump'
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+if os.environ.get('DATABASE_URL'):
+  app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+else:
+  app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
-print "DB SIZE IS: %d"%(len(app.DB))
+
 
 class Art(db.Model):
     key = db.Column(db.String(120), primary_key=True)
     artist_name = db.Column(db.String(80))
     piece_name = db.Column(db.String(120))
-    latitutde = db.Column(db.Double)
-    longitude = db.Column(db.Double)
+    latitutde = db.Column(db.Float)
+    longitude = db.Column(db.Float)
     bucket = db.Column(db.String(80))
     instagram = db.Column(db.String(80))
 
 
-    def __init__(self, key, artist_name='', piece_name='', latitutde='', longitude='', bucket = '',
-                 instagram = ''):
+    def __init__(self, key, artist_name='', piece_name='', latitutde=0.0, longitude=0.0, bucket = '',
+                 instagram = '', json_dict=None):
         self.key = key
         self.artist_name = artist_name
         self.piece_name = piece_name
         self.latitutde = latitutde
         self.longitude = longitude
+        self.bucket = bucket
+        self.instagragm = instagram
+
+        if json_dict is not None:
+          if json_dict.has_key('artistName'):
+            self.artist_name = json_dict['artistName']
+          if json_dict.has_key('pieceName'):
+            self.piece_name = json_dict['pieceName']
+          if json_dict.has_key('location'):
+            self.latitutde = json_dict['location']['lat']
+            self.longitude = json_dict['location']['long']
+          if json_dict.has_key('instagram'):
+            self.piece_name = json_dict['instagram']
+
 
     def __repr__(self):
         return '<Artist Name: %r>' % self.artist_name
@@ -58,20 +82,13 @@ def find_closest_art(db, coords):
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_image():
-  info = {}
-  #import pdb
-  #pdb.set_trace()
-  for key in request.form.keys():
-    print "KEY IS: " + key
-    print "VALUE IS: " + request.form[key]
-  for datum in METADATA:
-    if request.form.has_key(datum):
-      info[datum] = request.form[datum]
+  
   rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
   key = info['artistName'] + rand
-  info['key'] = key
-  info['aws_bucket'] = BUCKET_NAME
-  add_to_db(info, app.DB)
+  
+  art = Art(key, bucket=BUCKET_NAME, json_dict=request.form)
+  db.session.add(art)
+  db.session.commit(art)
   data = request.files['image'].stream.read()
   print "DATA SIZE: %s"%len(data)
   save_to_s3(key, data)
