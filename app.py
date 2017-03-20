@@ -14,7 +14,6 @@ from flask_sqlalchemy import SQLAlchemy
 METADATA = ['artistName', 
             'pieceName', 
             'instagram', 
-            'notes', 
             'location',
             'instagram']
 LOCATION = ['lat', 'long']
@@ -38,7 +37,7 @@ class Art(db.Model):
     longitude = db.Column(db.Float)
     bucket = db.Column(db.String(80))
     instagram = db.Column(db.String(80))
-    notes = db.Column(db.String(120))
+    #notes = db.Column(db.String(120))
 
 
     def __init__(self, key, artist_name='', piece_name='', latitutde=0.0, longitude=0.0, bucket = '',
@@ -50,7 +49,7 @@ class Art(db.Model):
         self.longitude = longitude
         self.bucket = bucket
         self.instagragm = instagram
-        self.notes = notes
+        #self.notes = notes
 
         if json_dict is not None:
           if json_dict.has_key('artistName'):
@@ -62,8 +61,8 @@ class Art(db.Model):
             self.longitude = json_dict['location']['long']
           if json_dict.has_key('instagram'):
             self.instagram = json_dict['instagram']
-          if json_dict.has_key('notes'):
-            self.notes = json_dict['notes']
+          #if json_dict.has_key('notes'):
+          # self.notes = json_dict['notes']
 
 
     def __repr__(self):
