@@ -5,7 +5,7 @@ import os
 import boto3
 import random
 import string
-
+from flask.ext.sqlalchemy import SQLAlchemy
 
 #DB jsonat 
 # [{name:foo, gps:(1,1), }, {} ...]
@@ -14,6 +14,9 @@ METADATA = ['artistName', 'name', 'artist', 'instagram', 'notes', 'location']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
 BUCKET_NAME='akiajqulpiyv2ovwdt4a-dump'
+
+
+
 
 def save_to_s3(key, data):
   s3 = boto3.resource('s3')
@@ -25,15 +28,16 @@ def load_db(db_path):
   return db
 
 app = Flask(__name__)
-app.DB = load_db(DB_PATH)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.db = SQLAlchemy(app)
 print "DB SIZE IS: %d"%(len(app.DB))
 
 
 
-def add_to_db(info, db):
-  db.append(info)
+def add_to_db(info):
+  app.DB.append(info)
   with open(DB_PATH, 'w') as f:
-    f.write(json.dumps(db))   
+    f.write(json.dumps(app.DB))   
 
 def find_closest_art(db, coords):
   # Returns index of closest art piece
