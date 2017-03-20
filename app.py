@@ -3,6 +3,7 @@ from flask import Flask, url_for, json,  request
 from scipy.spatial import distance
 import os
 import boto3
+import random
 
 
 #DB jsonat 
@@ -50,13 +51,15 @@ def upload_image():
   for key in request.form.keys():
     print "KEY IS: " + key
     print "VALUE IS: " + request.form[key]
-
   for datum in METADATA:
     if request.form.has_key(datum):
       info[datum] = request.form[datum]
+  key = info['artistName'] + rand
+  info['key'] = key
+  info['aws_bucket'] = BUCKET_NAME
   add_to_db(info, app.DB)
   data = request.files['image'].stream.read()
-  save_to_s3(info['artistName'], data)
+  save_to_s3(key, data)
   return 'success'
 
 @app.route('/lookup', methods=['GET', 'POST'])
