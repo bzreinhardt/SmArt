@@ -4,6 +4,7 @@ from scipy.spatial import distance
 import os
 import boto3
 import random
+import string
 
 
 #DB jsonat 
