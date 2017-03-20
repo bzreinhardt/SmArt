@@ -2,6 +2,7 @@
 from flask import Flask, url_for, json,  request 
 from scipy.spatial import distance
 import os
+import boto3
 
 
 #DB jsonat 
@@ -43,14 +44,16 @@ def find_closest_art(db, coords):
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_image():
-  info = request.form
-  print request.form
+  info = {}
+  #import pdb
+  #pdb.set_trace()
+  print request.form.keys()
   for datum in METADATA:
-    if not info.has_key(datum):
-      info[datum] = 'none'
+    if request.form.has_key(datum):
+      info[datum] = request.form[datum]
   add_to_db(info, app.DB)
-  data = request.data
-  save_to_s3(info[name], data)
+  data = request.files['image'].stream.read()
+  save_to_s3(info['name'], data)
   return 'success'
 
 @app.route('/lookup', methods=['GET', 'POST'])

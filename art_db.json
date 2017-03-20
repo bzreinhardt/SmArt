@@ -1,9 +1,1 @@
-[
-  {"name":"test",
-   "location": {
-      "lat":0,
-      "long":0
-    },
-   "instagram":"fnnch",
-   "image":"./images/test.png"}
-]
+[{"image": "./images/test.png", "instagram": "fnnch", "location": {"lat": 0, "long": 0}, "name": "test"}, {}, {"name": "fnnch"}, {"name": "fnnch"}, {"name": "fnnch"}, {"name": "fnnch"}]
