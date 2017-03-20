@@ -10,7 +10,8 @@ METADATA = ['name', 'artist', 'instagram', 'notes']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
 
-DB = []
+DB = load_db(DB_PATH)
+print "DB SIZE IS: %d"%(len(DB))
 
 app = Flask(__name__)
 
@@ -45,6 +46,8 @@ def upload_image():
 @app.route('/lookup', methods=['GET', 'POST'])
 def lookup_gps():
   coords = [(request.json['lat'], request.json['lon'])]
+  if len(DB) == 0:
+    DB = load_db(DB_PATH)
   index = find_closest_art(DB, coords)
   return json.dumps({'name':DB[index]['name'], 'instagram':DB[index]['instagram']})
 
@@ -55,7 +58,6 @@ def api_root():
 
 
 if __name__ == '__main__':
-  DB = load_db(DB_PATH)
-  print "DB SIZE IS: %d"%(len(DB))
+  
   app.debug = True
   app.run()
