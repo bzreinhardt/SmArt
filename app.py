@@ -15,10 +15,11 @@ def load_db(db_path):
     db = json.loads(f.read())
   return db
 
-DB = load_db(DB_PATH)
-print "DB SIZE IS: %d"%(len(DB))
-
 app = Flask(__name__)
+app.DB = load_db(DB_PATH)
+print "DB SIZE IS: %d"%(len(app.DB))
+
+
 
 def add_to_db(info, db):
   db.append(info)
@@ -34,24 +35,22 @@ def find_closest_art(db, coords):
   return dists.index(min(dists))
 
 
-
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_image():
   info = request.json
   for datum in METADATA:
     if not info.has_key(datum):
       info[datum] = 'none'
-  add_to_db(info, DB)
+  add_to_db(info, app.DB)
   return 'success'
 
 @app.route('/lookup', methods=['GET', 'POST'])
 def lookup_gps():
   coords = [(request.json['lat'], request.json['lon'])]
-  if len(DB) == 0:
-    DB = load_db(DB_PATH)
-  index = find_closest_art(DB, coords)
-  return json.dumps({'name':DB[index]['name'], 'instagram':DB[index]['instagram']})
+  if len(app.DB) == 0:
+    app.DB = load_db(DB_PATH)
+  index = find_closest_art(app.DB, coords)
+  return json.dumps({'name':app.DB[index]['name'], 'instagram':app.DB[index]['instagram']})
 
 
 @app.route('/')
