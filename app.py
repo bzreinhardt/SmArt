@@ -54,6 +54,7 @@ def upload_image():
   for datum in METADATA:
     if request.form.has_key(datum):
       info[datum] = request.form[datum]
+  rand = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
   key = info['artistName'] + rand
   info['key'] = key
   info['aws_bucket'] = BUCKET_NAME
