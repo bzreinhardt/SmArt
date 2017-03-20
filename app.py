@@ -10,7 +10,7 @@ import string
 #DB jsonat 
 # [{name:foo, gps:(1,1), }, {} ...]
 
-METADATA = ['artistName', 'name', 'artist', 'instagram', 'notes']
+METADATA = ['artistName', 'name', 'artist', 'instagram', 'notes', 'location']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
 BUCKET_NAME='akiajqulpiyv2ovwdt4a-dump'
@@ -61,7 +61,9 @@ def upload_image():
   info['aws_bucket'] = BUCKET_NAME
   add_to_db(info, app.DB)
   data = request.files['image'].stream.read()
+  print "DATA SIZE: %s"%len(data)
   save_to_s3(key, data)
+  print "SAVED TO KEY: %s"%key
   return 'success'
 
 @app.route('/lookup', methods=['GET', 'POST'])
