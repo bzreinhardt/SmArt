@@ -3,12 +3,18 @@ from flask import Flask, url_for, json,  request
 from scipy.spatial import distance
 import os
 
+
 #DB jsonat 
 # [{name:foo, gps:(1,1), }, {} ...]
 
 METADATA = ['name', 'artist', 'instagram', 'notes']
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = PROJECT_ROOT + '/art_db.json'
+BUCKET_NAME='akiajqulpiyv2ovwdt4a-dump'
+
+def save_to_s3(key, data):
+  s3 = boto3.resource('s3')
+  s3.Bucket(BUCKET_NAME).put_object(Key=key, Body=data)
 
 def load_db(db_path):
   with open(DB_PATH, 'r') as f:
@@ -37,11 +43,14 @@ def find_closest_art(db, coords):
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_image():
-  info = request.json
+  info = request.form
+  print request.form
   for datum in METADATA:
     if not info.has_key(datum):
       info[datum] = 'none'
   add_to_db(info, app.DB)
+  data = request.data
+  save_to_s3(info[name], data)
   return 'success'
 
 @app.route('/lookup', methods=['GET', 'POST'])
