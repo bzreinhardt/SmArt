@@ -1,7 +1,9 @@
 [
   {"name":"test",
-   "lat":0,
-   "lon":0,
+   "location": {
+      "lat":0,
+      "lon":0
+    },
    "instagram":"fnnch",
    "image":"./images/test.png"}
 ]

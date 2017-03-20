@@ -31,7 +31,7 @@ def find_closest_art(db, coords):
   # This is the stupidest version. Actually looping
   dists = []
   for art in db:
-    dists.append(distance.cdist([(art['lat'],art['lon'])], coords))
+    dists.append(distance.cdist([(art['location']['lat'],art['location']['lon'])], coords))
   return dists.index(min(dists))
 
 
@@ -46,7 +46,7 @@ def upload_image():
 
 @app.route('/lookup', methods=['GET', 'POST'])
 def lookup_gps():
-  coords = [(request.json['lat'], request.json['lon'])]
+  coords = [(request.json['location']['lat'], request.json['location']['lon'])]
   if len(app.DB) == 0:
     app.DB = load_db(DB_PATH)
   index = find_closest_art(app.DB, coords)
